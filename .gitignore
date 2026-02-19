@@ -1,0 +1,20 @@
+# Secrets - never commit actual config with tokens
+config/openclaw.json
+
+# Runtime data
+*.sqlite
+*.log
+*.jsonl
+
+# Browser data
+browser/
+
+# Credentials
+credentials/
+
+# Media
+media/
+
+# OS files
+.DS_Store
+Thumbs.db
