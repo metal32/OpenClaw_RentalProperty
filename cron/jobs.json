@@ -1,4 +1,25 @@
 {
   "version": 1,
-  "jobs": []
+  "jobs": [
+    {
+      "name": "facebook-rental-scan",
+      "description": "Scan Facebook rental groups every 6 hours",
+      "enabled": true,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 21600000
+      },
+      "sessionTarget": "isolated",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "/facebook-groups",
+        "timeoutSeconds": 300
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "telegram",
+        "to": "8576460636"
+      }
+    }
+  ]
 }
