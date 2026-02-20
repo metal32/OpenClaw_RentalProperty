@@ -40,9 +40,21 @@ For each group URL:
 
 1. Use `browser navigate <group_url>` to open the group
 2. Wait 5 seconds for content to load
-3. Scroll down 3-4 times using `browser press End` with 3-second waits between scrolls to load more posts
-4. Use `browser snapshot` to capture the page content
-5. From the snapshot, extract each visible post:
+3. **MANDATORY SCROLLING — DO NOT SKIP THIS STEP:**
+   - You MUST scroll the page to load more posts. Facebook uses infinite scroll — without scrolling you only see 3-5 posts.
+   - Execute this scroll sequence exactly:
+     ```
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     ```
+   - That is 5 presses of End with 3-second waits between each.
+   - Do NOT take a snapshot until ALL 5 scrolls are complete.
+4. Use `browser snapshot` to capture the full page content (should now show 15-25+ posts)
+5. If the snapshot shows fewer than 10 posts, scroll 3 more times and snapshot again.
+6. From the snapshot, extract each visible post:
    - Post text/message content
    - Author name
    - Timestamp (e.g., "2h", "1d", "3d", "February 15", "Just now")
@@ -159,12 +171,16 @@ After processing all 6 groups, ALWAYS send a summary to Telegram (chat ID 857646
 ```
 📊 Scan complete ({current_date_time}):
 - Groups scanned: 6
-- Posts checked: {total}
+- Posts checked: {total} (expect 60-100+ if scrolling worked)
+- Posts per group: G1:{n} G2:{n} G3:{n} G4:{n} G5:{n} G6:{n}
 - Posts within 7 days: {filtered}
 - Relevant matches found: {matches}
 - Notifications sent: {sent}
 - Duplicates skipped: {dupes}
+- Scrolls performed: {total_scrolls} (should be ~30 = 5 per group)
 ```
+
+If posts checked is below 40, something went wrong with scrolling — note it in the summary.
 
 If any error occurs during scanning (login expired, browser crash, network error), send an error notification:
 ```
@@ -179,8 +195,10 @@ Action needed: {suggested fix}
 ## Important Notes
 
 1. **Be patient with page loads** — Facebook is heavy. Wait 5+ seconds after navigation.
-2. **Scroll to load more** — Facebook uses infinite scroll. Press End key 3-4 times.
-3. **Handle login expiry** — If you see a login page instead of group content, notify the user: "Facebook session expired. Please re-export cookies."
-4. **Rate limit yourself** — Wait 3-5 seconds between group navigations to avoid Facebook blocking.
-5. **The sent_posts.json file** — Create it if it does not exist. Format: {"sent": ["id1", "id2"]}.
-6. **Google Maps** — Only check Maps if a clear address or Maps link is in the post. Do not check for every post.
+2. **SCROLLING IS CRITICAL** — Facebook uses infinite scroll. You MUST press End at least 5 times per group before taking a snapshot. If you skip scrolling, you will only see 3-5 posts and miss 80% of recent listings. This is the most common failure mode.
+3. **Do NOT click "See more" on individual posts** during the initial scan — it wastes time. Extract what you can from the feed view. Only click "See more" if a post scores ≥60 and you need missing details (contact info, exact address).
+4. **Handle login expiry** — If you see a login page instead of group content, send an error notification to Telegram and stop scanning.
+5. **Rate limit yourself** — Wait 3-5 seconds between group navigations to avoid Facebook blocking.
+6. **The sent_posts.json file** — Create it if it does not exist. Format: {"sent": ["id1", "id2"]}.
+7. **Google Maps** — Only check Maps if a clear address or Maps link is in the post. Do not check for every post.
+8. **Obfuscated timestamps** — Facebook sometimes scrambles timestamp text in the DOM. If timestamps appear garbled, treat the post as recent (within 7 days) rather than skipping it.

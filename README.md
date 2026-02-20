@@ -140,6 +140,23 @@ scp openclaw-vm:~/.openclaw/some-file.json ./
 scp -r ./workspace/ openclaw-vm:~/.openclaw/workspace/
 ```
 
+### Cookie Update (Facebook Session)
+
+When the Facebook session expires (cron job stops finding posts), update cookies:
+
+1. Open Facebook in Chrome on your local machine
+2. Click the **EditThisCookie** extension → Export (copies JSON to clipboard)
+3. Paste into a file, e.g. `cookies.json`
+4. Run:
+
+```powershell
+.\scripts\update-fb-cookies.ps1 -CookieFile cookies.json
+```
+
+The script will upload cookies to the VM, write them to Chrome's database, restart the browser, and verify login — all in one command.
+
+> ⚠️ **Never commit `cookies.json`** — it contains session tokens.
+
 ## Secrets (DO NOT COMMIT)
 
 The following must be set in your `openclaw.json` (not tracked in git):
