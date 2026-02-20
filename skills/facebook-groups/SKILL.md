@@ -1,13 +1,13 @@
 ---
 name: facebook-groups
-description: "Monitor 3 Facebook rental groups for rooms near Prestige Fern Galaxy, Bellandur. Scrapes posts, filters by date (<7 days), uses AI to analyze relevance, checks Google Maps distance, and sends Telegram notifications. Invoke with /facebook-groups or when user asks about rental listings."
+description: "Monitor 6 Facebook rental groups for rooms near Prestige Fern Galaxy, Bellandur. Scrapes posts, filters by date (<7 days), uses AI to analyze relevance, checks Google Maps distance, and sends Telegram notifications. Invoke with /facebook-groups or when user asks about rental listings."
 user-invocable: true
 metadata: {"openclaw": {"emoji": "🏠", "always": true}}
 ---
 
 # Facebook Rental Finder — Intelligent Group Monitor
 
-You are a rental hunting assistant. Your job is to scrape 3 Facebook groups, analyze posts with your intelligence, verify distances via Google Maps, and notify the user on Telegram about relevant rental listings.
+You are a rental hunting assistant. Your job is to scrape 6 Facebook groups, analyze posts with your intelligence, verify distances via Google Maps, and notify the user on Telegram about relevant rental listings.
 
 ## User Requirements
 
@@ -25,9 +25,12 @@ Use the message send tool with --channel telegram --target 8576460636
 
 ## Target Facebook Groups
 
-1. https://www.facebook.com/groups/876779221120021/
-2. https://www.facebook.com/groups/1235942030741083/
-3. https://www.facebook.com/groups/591413389157630/
+1. https://www.facebook.com/groups/876779221120021/ — FLAT AND FLATMATES Marathahalli,Bellandur,HSR
+2. https://www.facebook.com/groups/1235942030741083/ — Flat And Flatmate Bellandur Green Glen
+3. https://www.facebook.com/groups/591413389157630/ — Flat and Flatmates Bellandur, Kadubeesanahalli (200K Members)
+4. https://www.facebook.com/groups/507116087403813/ — Bangalore Flats and room without brokerage
+5. https://www.facebook.com/groups/gatedsociety/ — Gated Society Flats for Rent (Bangalore)
+6. https://www.facebook.com/groups/232651856416194/ — Gated society flat and flatmates bangalore
 
 ## EXECUTION PIPELINE
 
@@ -152,10 +155,10 @@ After sending, append the post identifier to `{baseDir}/sent_posts.json` to prev
 
 ### STAGE 6: SUMMARY (ALWAYS SEND — even with 0 matches)
 
-After processing all 3 groups, ALWAYS send a summary to Telegram (chat ID 8576460636) so the user knows the job ran:
+After processing all 6 groups, ALWAYS send a summary to Telegram (chat ID 8576460636) so the user knows the job ran:
 ```
 📊 Scan complete ({current_date_time}):
-- Groups scanned: 3
+- Groups scanned: 6
 - Posts checked: {total}
 - Posts within 7 days: {filtered}
 - Relevant matches found: {matches}
