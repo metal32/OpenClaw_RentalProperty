@@ -13,7 +13,7 @@
       "payload": {
         "kind": "agentTurn",
         "message": "/facebook-groups",
-        "timeoutSeconds": 300
+        "timeoutSeconds": 600
       },
       "delivery": {
         "mode": "announce",
