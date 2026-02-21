@@ -25,12 +25,12 @@ Use the message send tool with --channel telegram --target 8576460636
 
 ## Target Facebook Groups
 
-1. https://www.facebook.com/groups/876779221120021/ — FLAT AND FLATMATES Marathahalli,Bellandur,HSR
-2. https://www.facebook.com/groups/1235942030741083/ — Flat And Flatmate Bellandur Green Glen
-3. https://www.facebook.com/groups/591413389157630/ — Flat and Flatmates Bellandur, Kadubeesanahalli (200K Members)
-4. https://www.facebook.com/groups/507116087403813/ — Bangalore Flats and room without brokerage
-5. https://www.facebook.com/groups/gatedsociety/ — Gated Society Flats for Rent (Bangalore)
-6. https://www.facebook.com/groups/232651856416194/ — Gated society flat and flatmates bangalore
+1. https://www.facebook.com/groups/876779221120021/?sorting_setting=CHRONOLOGICAL — FLAT AND FLATMATES Marathahalli,Bellandur,HSR
+2. https://www.facebook.com/groups/1235942030741083/?sorting_setting=CHRONOLOGICAL — Flat And Flatmate Bellandur Green Glen
+3. https://www.facebook.com/groups/591413389157630/?sorting_setting=CHRONOLOGICAL — Flat and Flatmates Bellandur, Kadubeesanahalli (200K Members)
+4. https://www.facebook.com/groups/507116087403813/?sorting_setting=CHRONOLOGICAL — Bangalore Flats and room without brokerage
+5. https://www.facebook.com/groups/gatedsociety/?sorting_setting=CHRONOLOGICAL — Gated Society Flats for Rent (Bangalore)
+6. https://www.facebook.com/groups/232651856416194/?sorting_setting=CHRONOLOGICAL — Gated society flat and flatmates bangalore
 
 ## EXECUTION PIPELINE
 
@@ -38,22 +38,33 @@ Use the message send tool with --channel telegram --target 8576460636
 
 For each group URL:
 
-1. Use `browser navigate <group_url>` to open the group
+1. Use `browser navigate <group_url>?sorting_setting=CHRONOLOGICAL` to open the group in **chronological order** (NOT algorithmic). The `?sorting_setting=CHRONOLOGICAL` parameter is critical — it ensures newest posts appear first so scrolling reaches all recent posts.
 2. Wait 5 seconds for content to load
 3. **MANDATORY SCROLLING — DO NOT SKIP THIS STEP:**
    - You MUST scroll the page to load more posts. Facebook uses infinite scroll — without scrolling you only see 3-5 posts.
-   - Execute this scroll sequence exactly:
+   - Execute this scroll sequence exactly (15 scrolls total):
      ```
      browser press End  → wait 3 seconds
      browser press End  → wait 3 seconds
      browser press End  → wait 3 seconds
      browser press End  → wait 3 seconds
      browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
+     browser press End  → wait 3 seconds
      ```
-   - That is 5 presses of End with 3-second waits between each.
-   - Do NOT take a snapshot until ALL 5 scrolls are complete.
-4. Use `browser snapshot` to capture the full page content (should now show 15-25+ posts)
-5. If the snapshot shows fewer than 10 posts, scroll 3 more times and snapshot again.
+   - That is **15 presses of End** with 3-second waits between each.
+   - **EARLY STOP:** If during scrolling you notice posts are older than 2 days, you can stop scrolling early and take the snapshot.
+   - Do NOT take a snapshot until you have done at least 10 scrolls OR hit the 2-day cutoff.
+4. Use `browser snapshot` to capture the full page content (should now show 25-50+ posts)
+5. If the snapshot shows fewer than 15 posts, scroll 5 more times and snapshot again.
 6. From the snapshot, extract each visible post:
    - Post text/message content
    - Author name
@@ -62,17 +73,17 @@ For each group URL:
    - Any Google Maps links or location mentions
    - Whether the post has photos/images attached
 
-### STAGE 2: DATE FILTER (Hard Cutoff — 7 Days)
+### STAGE 2: DATE FILTER (Hard Cutoff — 1 Day)
 
-For each extracted post, evaluate the timestamp:
+Since the cron runs every 6 hours, we only need posts from the last 24 hours:
 - "Just now", "Xm" (minutes), "Xh" (hours) -> KEEP (today)
-- "1d", "2d", ... "7d" -> KEEP (within 7 days)
-- "Yesterday" -> KEEP
-- Specific dates -> Calculate if within last 7 days from today
-- "1w" or "7d" -> KEEP (borderline, include)
-- "2w", "8d", or older -> REJECT, skip entirely
+- "1d" or "Yesterday" -> KEEP (within 1 day)
+- "2d" or older -> REJECT, skip entirely
+- Specific dates -> Calculate if within last 1 day from today
 
 If you cannot determine the date, KEEP the post (benefit of the doubt).
+
+**STOP SCROLLING EARLY:** While scrolling, if you start seeing posts older than 2 days, you have reached the end of relevant content — stop scrolling and take the snapshot immediately. This saves time and avoids loading irrelevant old posts.
 
 ### STAGE 3: AI RELEVANCE ANALYSIS
 
@@ -171,13 +182,13 @@ After processing all 6 groups, ALWAYS send a summary to Telegram (chat ID 857646
 ```
 📊 Scan complete ({current_date_time}):
 - Groups scanned: 6
-- Posts checked: {total} (expect 60-100+ if scrolling worked)
+- Posts checked: {total} (expect 100-200+ if scrolling worked)
 - Posts per group: G1:{n} G2:{n} G3:{n} G4:{n} G5:{n} G6:{n}
-- Posts within 7 days: {filtered}
+- Posts within 1 day: {filtered}
 - Relevant matches found: {matches}
 - Notifications sent: {sent}
 - Duplicates skipped: {dupes}
-- Scrolls performed: {total_scrolls} (should be ~30 = 5 per group)
+- Scrolls performed: {total_scrolls} (should be ~60-90 = 10-15 per group)
 ```
 
 If posts checked is below 40, something went wrong with scrolling — note it in the summary.
@@ -195,7 +206,7 @@ Action needed: {suggested fix}
 ## Important Notes
 
 1. **Be patient with page loads** — Facebook is heavy. Wait 5+ seconds after navigation.
-2. **SCROLLING IS CRITICAL** — Facebook uses infinite scroll. You MUST press End at least 5 times per group before taking a snapshot. If you skip scrolling, you will only see 3-5 posts and miss 80% of recent listings. This is the most common failure mode.
+2. **SCROLLING IS CRITICAL** — Facebook uses infinite scroll. You MUST press End at least 10 times per group before taking a snapshot. If you skip scrolling, you will only see 3-5 posts and miss 90% of recent listings. This is the most common failure mode.
 3. **Do NOT click "See more" on individual posts** during the initial scan — it wastes time. Extract what you can from the feed view. Only click "See more" if a post scores ≥60 and you need missing details (contact info, exact address).
 4. **Handle login expiry** — If you see a login page instead of group content, send an error notification to Telegram and stop scanning.
 5. **Rate limit yourself** — Wait 3-5 seconds between group navigations to avoid Facebook blocking.
