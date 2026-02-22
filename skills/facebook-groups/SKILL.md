@@ -17,6 +17,12 @@ You are a rental hunting assistant. Your job is to scrape 6 Facebook groups, ana
 - **Max distance**: 5-6 km from Microsoft Prestige Fern Galaxy
 - **Budget**: Not specified (extract from post if mentioned)
 - **Gender**: Male (skip "girls only" / "female only" listings)
+- **Preferred societies** (extra priority — always include if available):
+  - Mantri Flora
+  - Springfield Apartments
+  - Elan Homes
+  - Sobha Dahlia
+  - Suncity Apartments
 
 ## Telegram Delivery
 
@@ -119,6 +125,7 @@ For each post that passed Stage 2, use your intelligence to analyze:
 
 **F) Scoring (0-100)**
 - Start at 50
+- **+25 if post mentions a preferred society** (Mantri Flora, Springfield Apartments, Elan Homes, Sobha Dahlia, Suncity Apartments) — these are top priority
 - +20 if location is HIGH relevance
 - +10 if location is MEDIUM relevance
 - +15 if "single room" or "1BHK" explicitly mentioned

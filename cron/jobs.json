@@ -3,22 +3,43 @@
   "jobs": [
     {
       "name": "facebook-rental-scan",
-      "description": "Scan Facebook rental groups every 6 hours",
+      "description": "Scan Facebook rental groups every 2 hours",
       "enabled": true,
       "schedule": {
         "kind": "every",
-        "everyMs": 21600000
+        "everyMs": 7200000
       },
       "sessionTarget": "isolated",
       "payload": {
         "kind": "agentTurn",
-        "message": "/facebook-groups",
-        "timeoutSeconds": 600
+        "message": "Run the /facebook-groups skill. Read the skill file at ~/.openclaw/workspace/skills/facebook-groups/SKILL.md for full instructions. Execute all stages defined in the skill.",
+        "timeoutSeconds": 1200
       },
       "delivery": {
         "mode": "announce",
         "channel": "telegram",
-        "to": "8576460636"
+        "to": "8576460636",
+        "bestEffort": true
+      }
+    },
+    {
+      "name": "fb-session-keepalive",
+      "description": "Navigate to facebook.com every 2h to refresh session cookies",
+      "enabled": true,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 7200000
+      },
+      "sessionTarget": "isolated",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Keep Facebook session alive: Use the browser tool to navigate to https://www.facebook.com and wait 5 seconds. Then take a snapshot. If you see a login page instead of the Facebook feed, send an error message to Telegram chat 8576460636 saying: Facebook session expired — manual cookie update needed. If you see the Facebook feed (Home, Your profile, etc), reply with: Session alive.",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "last",
+        "bestEffort": true
       }
     }
   ]
