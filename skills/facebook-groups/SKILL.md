@@ -75,7 +75,12 @@ For each group URL:
    - Post text/message content
    - Author name
    - Timestamp (e.g., "2h", "1d", "3d", "February 15", "Just now")
-   - Permalink URL (look for links to individual posts)
+   - **Permalink URL**: This is CRITICAL. Facebook post permalinks are found as links on the timestamp text (e.g., the "2h ago" or "Yesterday" text is a clickable link). The URL format is typically:
+     - `https://www.facebook.com/groups/{group_id}/posts/{post_id}/`
+     - Or: `https://www.facebook.com/groups/{group_id}/permalink/{post_id}/`
+     - In the snapshot, look for `/url:` entries near the timestamp that contain `/posts/` or `/permalink/` — these are the post permalinks.
+     - If you can see a post ID number (like `1550842927046977`) in any link, construct the permalink as: `https://www.facebook.com/groups/{group_id}/posts/{post_id}/`
+     - **If no permalink is found**, construct one from the group URL and any post ID visible in the DOM. Never leave the permalink empty.
    - Any Google Maps links or location mentions
    - Whether the post has photos/images attached
 
@@ -178,7 +183,9 @@ For each post with final relevance_score >= 60, send a Telegram message formatte
 📅 Posted: {timestamp}
 ⭐ Why relevant: {one-line reason}
 
-🔗 {facebook_post_permalink}
+🔗 Post: {facebook_post_permalink}
+   ↳ Format MUST be: https://www.facebook.com/groups/{group_id}/posts/{post_id}/
+   ↳ If post_id is unknown, link to the group page instead: https://www.facebook.com/groups/{group_id}/
 ```
 
 After sending, append the post identifier to `{baseDir}/sent_posts.json` to prevent re-notification.
