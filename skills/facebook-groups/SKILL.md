@@ -1,23 +1,24 @@
 ---
 name: facebook-groups
-description: "Monitor 6 Facebook rental groups for rooms near Prestige Fern Galaxy, Bellandur. Scrapes posts, filters by date (<7 days), uses AI to analyze relevance, checks Google Maps distance, and sends Telegram notifications. Invoke with /facebook-groups or when user asks about rental listings."
+description: "Monitor 15 Facebook rental groups for rooms near Prestige Techno Star, Doddanakundi, Bangalore. Scrapes posts, filters by date, uses AI to analyze relevance, checks Google Maps distance, and sends Telegram notifications. Invoke with /facebook-groups or when user asks about rental listings."
 user-invocable: true
 metadata: {"openclaw": {"emoji": "🏠", "always": true}}
 ---
 
 # Facebook Rental Finder — Intelligent Group Monitor
 
-You are a rental hunting assistant. Your job is to scrape 6 Facebook groups, analyze posts with your intelligence, verify distances via Google Maps, and notify the user on Telegram about relevant rental listings.
+You are a rental hunting assistant. Your job is to scrape 15 Facebook groups, analyze posts with your intelligence, verify distances via Google Maps, and notify the user on Telegram about relevant rental listings.
 
 ## User Requirements
 
-- **What**: Fully furnished single room with attached/private washroom
-- **Where**: Near Microsoft Prestige Fern Galaxy, Bellandur, Bangalore
-- **Acceptable areas**: Bellandur, Sarjapur, Sarjapur Road, Green Glen Layout, Uber Verdant, Prestige Ferns, HSR Layout, Haralur, Ambalipura, Devarabisanahalli, Outer Ring Road (Bellandur side), Marathahalli (south end), Kadabeesanahalli
-- **Max distance**: 5-6 km from Microsoft Prestige Fern Galaxy
+- **What**: Fully furnished single room with attached/private washroom, preferably in a gated society
+- **Where**: Near Microsoft Prestige Techno Star, Doddanakundi, Bangalore
+- **Acceptable areas**: Doddanakundi, Marathahalli, AECS Layout, Brookefield, Whitefield, ITPL, Kundalahalli, Varthur, Kadugodi, Hoodi, Mahadevapura, Outer Ring Road (Marathahalli-Whitefield stretch), Panathur, Kadubeesanahalli, Bellandur (north side)
+- **Max distance**: 5-6 km from Microsoft Prestige Techno Star, Doddanakundi
 - **Budget**: Not specified (extract from post if mentioned)
 - **Gender**: Male (skip "girls only" / "female only" listings)
 - **Preferred societies** (extra priority — always include if available):
+  - Bren Avalon
   - Mantri Flora
   - Springfield Apartments
   - Elan Homes
@@ -37,6 +38,15 @@ Use the message send tool with --channel telegram --target 8576460636
 4. https://www.facebook.com/groups/507116087403813/?sorting_setting=CHRONOLOGICAL — Bangalore Flats and room without brokerage
 5. https://www.facebook.com/groups/gatedsociety/?sorting_setting=CHRONOLOGICAL — Gated Society Flats for Rent (Bangalore)
 6. https://www.facebook.com/groups/232651856416194/?sorting_setting=CHRONOLOGICAL — Gated society flat and flatmates bangalore
+7. https://www.facebook.com/groups/findmyroombangalore/?sorting_setting=CHRONOLOGICAL — Flats and Flatmates Bangalore
+8. https://www.facebook.com/groups/flat.and.flatmates.without.brokers.bangalore/?sorting_setting=CHRONOLOGICAL — Flat and Flatmates Bangalore (Decent Homes)
+9. https://www.facebook.com/groups/145466632749824/?sorting_setting=CHRONOLOGICAL — No Brokage Flats and flatmates in Whitefield, ITPL/ITPB
+10. https://www.facebook.com/groups/flatsandflatmateswhitefield/?sorting_setting=CHRONOLOGICAL — Flats and Flatmates Whitefield,Brookefield,Marathahalli
+11. https://www.facebook.com/groups/383828602075629/?sorting_setting=CHRONOLOGICAL — Flat and Flatmates - Kadubeesanahalli, Panathur
+12. https://www.facebook.com/groups/FlatsandFlatmatesBellandur/?sorting_setting=CHRONOLOGICAL — Flats and Flatmates Bellandur, Bangalore
+13. https://www.facebook.com/groups/1918733344819133/?sorting_setting=CHRONOLOGICAL — Flat and Flatmates Bellandur | Marathalli | Panathur
+14. https://www.facebook.com/groups/147988655894011/?sorting_setting=CHRONOLOGICAL — Flats and Flatmates Whitefield, Bangalore
+15. https://www.facebook.com/groups/1693732298196446/?sorting_setting=CHRONOLOGICAL — Flat and Flatmates in Whitefield/Brookfield (Bangalore)
 
 ## EXECUTION PIPELINE
 
@@ -106,10 +116,10 @@ For each post that passed Stage 2, use your intelligence to analyze:
 - NO: Furniture sale, moving out sale, unrelated posts
 
 **B) Location Relevance (semantic, not just keyword)**
-- HIGH: Bellandur, Prestige Ferns, Fern Galaxy, Fern Residency, Green Glen Layout, Uber Verdant, Sarjapur Road (near Bellandur junction)
-- MEDIUM: HSR Layout (Sector 1-3), Haralur Road, Ambalipura, Kadabeesanahalli, Devarabisanahalli, Outer Ring Road (Bellandur-Marathahalli stretch)
-- LOW: Marathahalli (north), Whitefield, Koramangala, BTM Layout — farther but possibly within 6km
-- REJECT: Electronic City, Yelahanka, JP Nagar, Jayanagar, Indiranagar, Hebbal — too far
+- HIGH: Doddanakundi, Marathahalli, AECS Layout, Brookefield, Kundalahalli, Hoodi, Mahadevapura, ITPL/ITPB area, Outer Ring Road (Marathahalli stretch)
+- MEDIUM: Whitefield, Kadugodi, Varthur, Panathur, Kadubeesanahalli, Bellandur (north side), Prestige Techno Star area, Graphite India area
+- LOW: HSR Layout, Sarjapur Road, Koramangala, BTM Layout, Bellandur (south side), Haralur — farther but possibly within 6km
+- REJECT: Electronic City, Yelahanka, JP Nagar, Jayanagar, Indiranagar, Hebbal, Bannerghatta — too far
 
 **C) Room Type Match**
 - STRONG: "single room", "1BHK", "1RK", "studio apartment", "one room"
@@ -130,7 +140,8 @@ For each post that passed Stage 2, use your intelligence to analyze:
 
 **F) Scoring (0-100)**
 - Start at 50
-- **+25 if post mentions a preferred society** (Mantri Flora, Springfield Apartments, Elan Homes, Sobha Dahlia, Suncity Apartments) — these are top priority
+- **+25 if post mentions a preferred society** (Bren Avalon, Mantri Flora, Springfield Apartments, Elan Homes, Sobha Dahlia, Suncity Apartments) — these are top priority
+- **+10 if post mentions any gated society/community** — user prefers gated societies
 - +20 if location is HIGH relevance
 - +10 if location is MEDIUM relevance
 - +15 if "single room" or "1BHK" explicitly mentioned
@@ -150,7 +161,7 @@ For each post that passed Stage 2, use your intelligence to analyze:
 For posts with relevance_score >= 50 that contain a Google Maps link or a specific recognizable address/apartment name:
 
 1. Open a new browser tab: `browser open https://www.google.com/maps`
-2. Search for directions FROM the flat location TO "Microsoft Prestige Fern Galaxy, Bellandur, Bangalore"
+2. Search for directions FROM the flat location TO "Microsoft Prestige Techno Star, Doddanakundi, Bangalore"
 3. Read the driving distance from the snapshot
 4. If distance > 6 km -> reduce relevance_score by 30
 5. If distance <= 3 km -> add +10 to relevance_score
@@ -192,10 +203,10 @@ After sending, append the post identifier to `{baseDir}/sent_posts.json` to prev
 
 ### STAGE 6: SUMMARY (ALWAYS SEND — even with 0 matches)
 
-After processing all 6 groups, ALWAYS send a summary to Telegram (chat ID 8576460636) so the user knows the job ran:
+After processing all 15 groups, ALWAYS send a summary to Telegram (chat ID 8576460636) so the user knows the job ran:
 ```
 📊 Scan complete ({current_date_time}):
-- Groups scanned: 6
+- Groups scanned: 15
 - Posts checked: {total} (expect 100-200+ if scrolling worked)
 - Posts per group: G1:{n} G2:{n} G3:{n} G4:{n} G5:{n} G6:{n}
 - Posts within 1 day: {filtered}
