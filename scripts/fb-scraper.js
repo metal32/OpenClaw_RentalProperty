@@ -185,7 +185,12 @@ async function scrapeGroup(page, group) {
   page.on('response', onResponse);
 
   try {
+    // Clear browser cache via CDP to force fresh GraphQL requests
+    const cdp = await page.createCDPSession();
+    await cdp.send('Network.clearBrowserCache');
+    await cdp.detach();
     await page.setCacheEnabled(false);
+
     await page.goto(groupUrl, { waitUntil: 'networkidle2', timeout: 45000 });
     await sleep(PAGE_LOAD_WAIT_MS);
 
