@@ -235,12 +235,10 @@ async function scrapeGroup(page, group) {
             postId: s.postId,
             groupId: group.id,
             author: s.author,
-            authorId: s.authorId,
             timestamp: s.timestamp,
             permalink: s.postUrl || `https://www.facebook.com/groups/${group.id}/`,
-            text: s.text,
+            text: s.text.substring(0, 800),
             hasImages: s.hasImages,
-            imageDescriptions: s.imageDescriptions,
             mapsLink: s.mapsLink,
           });
         }
@@ -329,6 +327,40 @@ async function main() {
 
   // Write output
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(result, null, 2));
+
+  // Write batch files for the agent to process in chunks
+  const BATCH_DIR = path.join(path.dirname(OUTPUT_FILE), 'fb_batches');
+  if (!fs.existsSync(BATCH_DIR)) fs.mkdirSync(BATCH_DIR, { recursive: true });
+  // Clean old batches
+  for (const f of fs.readdirSync(BATCH_DIR)) {
+    if (f.startsWith('batch_')) fs.unlinkSync(path.join(BATCH_DIR, f));
+  }
+
+  const BATCH_SIZE = 50;
+  const allPosts = result.groups.flatMap(g =>
+    g.posts.map(p => ({ ...p, groupName: g.groupName }))
+  );
+  const batchCount = Math.ceil(allPosts.length / BATCH_SIZE);
+  for (let b = 0; b < batchCount; b++) {
+    const batch = allPosts.slice(b * BATCH_SIZE, (b + 1) * BATCH_SIZE);
+    const batchFile = path.join(BATCH_DIR, `batch_${b + 1}.json`);
+    fs.writeFileSync(batchFile, JSON.stringify({ batch: b + 1, total: batchCount, posts: batch }, null, 2));
+  }
+  console.error(`Wrote ${batchCount} batch files (${BATCH_SIZE} posts each) → ${BATCH_DIR}/`);
+
+  // Write a compact summary for the agent
+  const summaryFile = path.join(path.dirname(OUTPUT_FILE), 'fb_scrape_summary.json');
+  fs.writeFileSync(summaryFile, JSON.stringify({
+    scrapedAt: result.scrapedAt,
+    sessionAlive: result.sessionAlive,
+    totalPosts: result.totalPosts,
+    batchCount,
+    batchDir: BATCH_DIR,
+    errors: result.errors,
+    groups: result.groups.map(g => ({ name: g.groupName, posts: g.postsFound })),
+  }, null, 2));
+  console.error(`Summary → ${summaryFile}`);
+
   console.error(`\nDone! ${result.totalPosts} posts from ${result.groups.length} groups → ${OUTPUT_FILE}`);
 
   if (!result.sessionAlive) {

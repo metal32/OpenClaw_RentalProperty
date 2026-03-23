@@ -68,6 +68,7 @@ This applies to ALL messages: rental alerts, scan summaries, error notifications
 - You MUST run the scraper script to collect posts. Never try to scrape manually with browser snapshot.
 - You MUST NOT decide to "skip this run" because a previous run happened recently. Each run is independent.
 - You MUST send results to Telegram using: channel=telegram, target=8576460636
+- You MUST do ALL work in THIS session. Do NOT spawn subagents or background sessions. Do NOT use sessions_spawn. Process everything inline.
 - If you have no context from previous runs, that is FINE — just follow this pipeline from scratch.
 
 ### STAGE 1: RUN THE SCRAPER (replaces manual browser scraping)
@@ -86,9 +87,11 @@ exec command="cd ~/.openclaw/workspace/scripts && node fb-scraper.js" timeout=90
 - Intercepts the GraphQL responses and extracts full post data
 - Filters out posts older than 3 days
 - Writes results to `~/.openclaw/workspace/fb_scraped_posts.json`
+- Splits posts into batch files at `~/.openclaw/workspace/fb_batches/batch_N.json` (50 posts each)
+- Writes a compact summary to `~/.openclaw/workspace/fb_scrape_summary.json`
 
 **Exit codes:**
-- `0` = success — read the output JSON file
+- `0` = success — read the summary and batch files
 - `1` = Facebook session expired — send error to Telegram and stop
 - `2` = fatal error — send error to Telegram and stop
 
@@ -97,12 +100,14 @@ exec command="cd ~/.openclaw/workspace/scripts && node fb-scraper.js" timeout=90
 - **STOP IMMEDIATELY.** Return the error message as your summary and exit.
 
 **If exit code is 0 (success):**
-- Read the output file: `~/.openclaw/workspace/fb_scraped_posts.json`
-- The JSON contains: `{ scrapedAt, sessionAlive, groups: [{ groupId, groupName, postsFound, posts: [...] }], totalPosts, errors }`
-- Each post has: `postId`, `groupId`, `author`, `authorId`, `timestamp` (ISO 8601), `permalink`, `text`, `hasImages`, `imageDescriptions`, `mapsLink`
-- Proceed to Stage 2 with the extracted posts
+1. Read the summary: `~/.openclaw/workspace/fb_scrape_summary.json`
+   - Contains: `{ scrapedAt, totalPosts, batchCount, errors, groups: [{name, posts}] }`
+2. Process each batch file sequentially: `~/.openclaw/workspace/fb_batches/batch_1.json`, `batch_2.json`, etc.
+   - Each batch has ~50 posts with: `postId`, `groupId`, `groupName`, `author`, `timestamp` (ISO 8601), `permalink`, `text` (up to 800 chars), `hasImages`, `mapsLink`
+3. For each batch, read the file and run Stage 2 analysis on its posts.
+4. After ALL batches are processed, proceed to Stage 4 (Telegram) and Stage 5 (Summary).
 
-**Expected output:** 150-250+ posts across 15 groups. If totalPosts is below 50, note it in the summary.
+**Expected output:** 150-250+ posts across 15 groups, split into 3-5 batches.
 
 ### STAGE 2: AI RELEVANCE ANALYSIS
 
